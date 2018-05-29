@@ -1,6 +1,7 @@
 package notifier
 
 import (
+	"crypto/tls"
 	"fmt"
 
 	"github.com/nsqio/go-nsq"
@@ -34,6 +35,29 @@ func (nc *NotifyClient) Connect(hostPort string) error {
 
 func New(topic, channel string) *NotifyClient {
 	config := nsq.NewConfig()
+	q, err := nsq.NewConsumer(topic, channel, config)
+	if err != nil {
+		panic(err)
+	}
+	return &NotifyClient{
+		queue: q,
+		stop:  make(chan struct{}),
+	}
+}
+
+func NewWithTLS(topic, channel, certPath, keyPath string) *NotifyClient {
+	config := nsq.NewConfig()
+	cert, err := tls.LoadX509KeyPair(certPath, keyPath)
+	if err != nil {
+		panic(err)
+	}
+	tlsConfig := &tls.Config{
+		Certificates:       []tls.Certificate{cert},
+		InsecureSkipVerify: true,
+	}
+	config.TlsV1 = true
+	config.TlsConfig = tlsConfig
+
 	q, err := nsq.NewConsumer(topic, channel, config)
 	if err != nil {
 		panic(err)
