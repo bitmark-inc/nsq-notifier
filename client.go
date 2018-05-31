@@ -47,14 +47,17 @@ func New(topic, channel string) *NotifyClient {
 
 func NewWithTLS(topic, channel, certPath, keyPath string) *NotifyClient {
 	config := nsq.NewConfig()
-	cert, err := tls.LoadX509KeyPair(certPath, keyPath)
-	if err != nil {
-		panic(err)
-	}
 	tlsConfig := &tls.Config{
-		Certificates:       []tls.Certificate{cert},
 		InsecureSkipVerify: true,
 	}
+	if certPath != "" && keyPath != "" {
+		cert, err := tls.LoadX509KeyPair(certPath, keyPath)
+		if err != nil {
+			panic(err)
+		}
+		tlsConfig.Certificates = []tls.Certificate{cert}
+	}
+
 	config.TlsV1 = true
 	config.TlsConfig = tlsConfig
 
