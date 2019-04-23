@@ -33,8 +33,9 @@ func (nc *NotifyClient) Connect(hostPort string) error {
 	return nil
 }
 
-func New(topic, channel string) *NotifyClient {
+func New(topic, channel string, maxAttempts uint16) *NotifyClient {
 	config := nsq.NewConfig()
+	config.MaxAttempts = maxAttempts
 	q, err := nsq.NewConsumer(topic, channel, config)
 	if err != nil {
 		panic(err)
@@ -45,8 +46,9 @@ func New(topic, channel string) *NotifyClient {
 	}
 }
 
-func NewWithTLS(topic, channel, certPath, keyPath string) *NotifyClient {
+func NewWithTLS(topic, channel, certPath, keyPath string, maxAttempts uint16) *NotifyClient {
 	config := nsq.NewConfig()
+	config.MaxAttempts = maxAttempts
 	tlsConfig := &tls.Config{
 		InsecureSkipVerify: true,
 	}
