@@ -3,7 +3,6 @@ package notifier
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/bitgoin/address"
 
 	"github.com/nsqio/go-nsq"
 )
