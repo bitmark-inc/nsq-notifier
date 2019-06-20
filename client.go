@@ -3,6 +3,7 @@ package notifier
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/bitgoin/address"
 
 	"github.com/nsqio/go-nsq"
 )
@@ -21,14 +22,16 @@ func (nc *NotifyClient) AddHandler(cb func(message *nsq.Message) error) {
 	nc.queue.AddHandler(nsq.HandlerFunc(cb))
 }
 
-func (nc *NotifyClient) Connect(hostPort string) error {
-	err := nc.queue.ConnectToNSQD(hostPort)
+func (nc *NotifyClient) Connect(addresses []string) error {
+	err := nc.queue.ConnectToNSQLookupds(addresses)
 	if err != nil {
 		return fmt.Errorf("can not connect to queue server. error: %s", err.Error())
 	}
 	go func() {
 		<-nc.stop
-		nc.queue.DisconnectFromNSQD(hostPort)
+		for _, addr := range addresses {
+			nc.queue.DisconnectFromNSQLookupd(addr)
+		}
 	}()
 	return nil
 }
