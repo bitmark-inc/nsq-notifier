@@ -28,9 +28,7 @@ func (nc *NotifyClient) Connect(addresses []string) error {
 	}
 	go func() {
 		<-nc.stop
-		for _, addr := range addresses {
-			nc.queue.DisconnectFromNSQLookupd(addr)
-		}
+		nc.queue.Stop()
 	}()
 	return nil
 }
