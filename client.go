@@ -21,14 +21,14 @@ func (nc *NotifyClient) AddHandler(cb func(message *nsq.Message) error) {
 	nc.queue.AddHandler(nsq.HandlerFunc(cb))
 }
 
-func (nc *NotifyClient) Connect(hostPort string) error {
-	err := nc.queue.ConnectToNSQD(hostPort)
+func (nc *NotifyClient) Connect(addresses []string) error {
+	err := nc.queue.ConnectToNSQLookupds(addresses)
 	if err != nil {
 		return fmt.Errorf("can not connect to queue server. error: %s", err.Error())
 	}
 	go func() {
 		<-nc.stop
-		nc.queue.DisconnectFromNSQD(hostPort)
+		nc.queue.Stop()
 	}()
 	return nil
 }
