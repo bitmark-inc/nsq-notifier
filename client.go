@@ -8,9 +8,8 @@ import (
 )
 
 type NotifyClient struct {
-	hostPort string
-	queue    *nsq.Consumer
-	stop     chan struct{}
+	queue *nsq.Consumer
+	stop  chan struct{}
 }
 
 func (nc *NotifyClient) Close() {
@@ -19,6 +18,14 @@ func (nc *NotifyClient) Close() {
 
 func (nc *NotifyClient) AddHandler(cb func(message *nsq.Message) error) {
 	nc.queue.AddHandler(nsq.HandlerFunc(cb))
+}
+
+func (nc *NotifyClient) AddConcurrentHandlers(cb func(message *nsq.Message) error, concurrency int) {
+	nc.queue.AddConcurrentHandlers(nsq.HandlerFunc(cb), concurrency)
+}
+
+func (nc *NotifyClient) ChangeMaxInFlight(maxInFlight int) {
+	nc.queue.ChangeMaxInFlight(maxInFlight)
 }
 
 func (nc *NotifyClient) Connect(addresses []string) error {
